@@ -1,0 +1,84 @@
+file := package* import* (def | ENDLINE | expr)* $
+
+    package := 'package' TOKEN (':' TOKEN)* ENDLINE
+
+    // import std:string.string::* //< traits, member function, type itself, etc.
+    import := ['export'] 'import' TOKEN (':' TOKEN)* '.' ('*' | TOKEN ['as' TOKEN] | TOKEN '::' (TOKEN ['as' TOKEN] | '*')) ENDLINE
+    def := ['[' templateArgToken ['(' (literalExpr | templateArgToken) (',' (literalExpr | templateArgToken))* ')'] ']'] ['export'] (varDef | constDef | traitDef | typeDef | typeAliasDef | normalFuncDef | memberFuncDef | externFuncDef | traitImplDef)
+
+        varDef := ('var' | 'val') [TOKEN '::'] (TOKEN | '(' TOKEN (',' TOKEN)* ')') [':' type] '=' expr ENDLINE
+        constDef := 'const' TOKEN [':' type] '=' literalExpr ENDLINE
+        traitDef := 'trait' templateParamToken '{' funcHead (',' funcHead)* '}'
+
+            funcHead := 'func' ['unsafe'] ['static'] templateParamToken '(' TOKEN [':' '&'] [',' functionParamList] ')' ['->' [type]]
+
+        typeDef := 'type' templateParamToken ('class' | 'struct') (tupleType | [TOKEN] tupleType ('|' [TOKEN] tupleType)*) ENDLINE
+        typeAliasDef := 'type' templateParamToken '=' templateArgToken
+        normalFuncDef := 'func' ['unsafe'] templateParamToken '(' functionParamList ')' ['->' [type]] blockExpr
+        memberFuncDef := 'func' ['unsafe'] templateArgToken '::' templateParamToken '(' TOKEN [':' '&'] [',' functionParamList] ')' ['->' [type]] blockExpr
+        staticFuncDef := 'func' ['unsafe'] 'static' templateArgToken '::' templateParamToken '(' functionParamList ')' ['->' [type]] blockExpr
+        externFuncDef := 'extern' 'func' ['unsafe'] TOKEN '(' functionParamList ')' ['->' [type]] ['as' TOKEN] ENDLINE
+        traitImplDef := 'impl' templateParam templateArgToken 'for' templateArgToken '{' (templateArgToken ['->' templateArgToken] ENDLINE)* '}'
+
+        functionParam := ([TOKEN] ':' funcParamType | TOKEN)
+        functionParamList := (functionParam (',' functionParam)* | 'varg' functionParam) (',' 'varg' functionParam)*
+
+    expr := [unaryExpr '='] BinOpExpr
+
+        BinOpExpr := unaryExpr | BinOpExpr OP unaryExpr
+
+            unaryExpr := suffixExpr | UOP unaryExpr
+
+                suffixExpr := primaryExpr | memberFuncCallExpr | memberExpr | subscriptExpr | castExpr | typeOrTraitCheckExpr | noneVerifyExpr | staticMemberExpr
+
+                    primaryExpr := identifierExpr | packageExpr | blockExpr | ParenthesesExpr | tupleExpr | constructorOrFuncCallExpr | branchExpr | forLoopExpr | LoopExpr | whereExpr | literalExpr | lambdaExpr
+
+                        identifierExpr := templateArgToken
+                        blockExpr := ['unsafe'] '{' (expr ENDLINE | def | specialFuncCall | controlFlowStatement)* [expr] '}'
+
+                            specialFuncCall := ('defer' | 'init') constructorOrFuncCallExpr ENDLINE
+                            controlFlowStatement := returnStatement | breakStatement | continueStatement
+
+                                returnStatement := 'return' [expr] ENDLINE
+                                breakStatement := 'break' [expr] ENDLINE
+                                continueStatement := 'continue' ENDLINE
+
+                        ParenthesesExpr := '(' expr ')'
+                        tupleExpr := '(' [(expr ',' | expr (',' expr)*)] ')'
+                        constructorOrFuncCallExpr := type '(' ['*'] expr (',' ['*'] expr)* ')'
+                        branchExpr := 'if' '(' [varDef ENDLINE] expr ')' expr ['else' expr]
+                        forLoopExpr := 'for' '(' TOKEN ':' expr ')' expr
+                        LoopExpr := 'loop' expr
+                        whereExpr := 'where' '(' expr ')' '{' whereCase* '}' | 'where' '(' type (',' type)* ')' '{' whereCase* '}'
+
+                            whereCase := ('is' type | literalExpr | TOKEN | [TOKEN] '(' (literalExpr | TOKEN) (',' (literalExpr | TOKEN))* ')') ['if' '(' expr ')'] '=>' expr ENDLINE
+
+                        literalExpr := NUM | STRING | FLOAT | enumMember | BOOLEAN
+
+                            enumMember := templateArgToken '::' TOKEN
+
+                        lambdaExpr := '|' functionParamList '|' ['->' type] expr
+
+                    memberFuncCallExpr := primaryExpr '.' constructorOrFuncCallExpr
+                    memberExpr := primaryExpr '.' (TOKEN | KEYWORDS | NUM)
+                    subscriptExpr := primaryExpr '[' expr (',' expr)* ']'
+                    castExpr := primaryExpr 'as' ['?'] type
+                    typeOrTraitCheckExpr := primaryExpr 'is' type
+                    noneVerifyExpr := primaryExpr '?'
+                    staticMemberExpr := primaryExpr '::' TOKEN
+
+    tupleType := '(' ( | [TOKEN] ':' type ',' | [TOKEN] ':' type ',' [TOKEN] ':' type (',' [TOKEN] ':' type)*) ')'
+    type := 'dynamic' | templateArgToken | '[' [(NUM | ':') (',' (NUM | ':'))*] ']' type | 'func' ['unsafe'] '(' functionParamList ')' ['->' type] | tupleType
+    funcParamType := type | '&' ['mut'] type
+
+    templateArgToken := TOKEN [templateArg]
+    templateArg := '<' (type | NUM) (',' (type | NUM))* '>'
+    templateParamToken := TOKEN [templateParam]
+    templateParam := '<' TOKEN [':' templateArgToken ('+' templateArgToken)*] (',' TOKEN [':' templateArgToken ('+' templateArgToken)*])* '>'
+
+    ENDLINE := ';'
+    TOKEN := '`' SYM '`' | [_a-zA-Z\u256-][_0-9a-zA-Z\u256-]*
+    KEYWORDS := 
+    NUM := 
+    OP := 
+    UOP := 
