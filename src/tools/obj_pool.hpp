@@ -6,6 +6,8 @@
 #include <memory>
 #include <functional>
 
+#include "defs.hpp"
+
 namespace rulejit {
 
 /**
@@ -15,7 +17,7 @@ namespace rulejit {
  * 
  * @tparam OBJ 
  */
-template<typename OBJ, size_t CHUNK_CNT = 4 * 1024 / sizeof(OBJ)>
+template<typename OBJ, size_t CHUNK_CNT = PageSize / sizeof(OBJ)>
 class ObjectPool {
 public:
     explicit ObjectPool() noexcept : next(nullptr), end(nullptr) { 
@@ -28,6 +30,7 @@ public:
     ObjectPool(const ObjectPool& obj) noexcept = delete;
     auto operator=(const ObjectPool& obj) noexcept = delete;
 
+    // TODO: unconstructed object
     OBJ* get() {
         if (next == end) [[unlikely]] {
             auto new_chunk = std::make_unique<OBJ[]>(CHUNK_CNT);
@@ -55,6 +58,26 @@ private:
     std::vector<std::unique_ptr<OBJ[]>> pool;
     OBJ* next;
     OBJ* end;
+};
+
+template <typename T, size_t CHUNK_CNT = size_t(-1)>
+struct PooledList {
+    struct Node {
+        T value;
+        Node* next;
+    };
+    using Pool = ObjectPool<Node, CHUNK_CNT == size_t(-1) ? (4 * 1024 / sizeof(Node)) : CHUNK_CNT>;
+    Pool* pool;
+    Node* head;
+    explicit PooledList(Pool& p): pool(&p), head(nullptr) {}
+    PooledList(const PooledList& other) = default;
+    PooledList(PooledList&& other) = default;
+    ~PooledList() = default;
+    template <typename ...Ty>
+    T& emplace_front(Ty&&... v) {
+        auto p = pool->get();
+        head = new(p) Node{{std::forward<>(v)...}, head};
+    }
 };
 
 /**
