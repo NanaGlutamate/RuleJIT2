@@ -5,15 +5,27 @@
 #include <deque>
 
 #include "defs.hpp"
-#include "mem.hpp"
+#include "gc/mem.hpp"
 #include "ir/type.hpp"
 #include "ir/func.hpp"
+#include "ir/tplate.hpp"
 
 namespace rulejit {
 
+struct CodeManager {
+    struct Section {
+        std::vector<reg> staticVar;
+
+    };
+};
+
 struct VMContext {
-    FunctionManager fm;
-    TypeManager tm;
+    TemplateManager* tpm;
+
+    FunctionManager* fm;
+    TypeManager* tm;
+
+    CodeManager* cm;
 };
 
 struct ThreadVM {

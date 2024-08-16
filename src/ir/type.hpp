@@ -3,6 +3,7 @@
 #include <type_traits>
 #include <map>
 #include <unordered_map>
+#include <utility>
 #include <variant>
 
 #include "defs.hpp"
@@ -20,15 +21,18 @@ struct FunctionType {
         bool isConst;
         bool isVararg;
         bool isReferenced;
+        bool isMutReferenced;
     };
     std::vector<FunctionParamType> params;
     TypeToken returnType;
 };
 struct ArrayType {
+    // size.empty() if dynamic array
     std::vector<usize> size;
     TypeToken elementType;
 };
 struct BaseType {
+    bool isClass;
     StringToken name;
 };
 struct TupleType {
@@ -47,17 +51,27 @@ struct StructOrClassType {
 struct TraitObj {
     TraitToken token;
 };
-using Type = std::variant<FunctionType, ArrayType, BaseType, TupleType, StructOrClassType, TraitObj>;
+
+struct Type {
+    using InnerType = std::variant<FunctionType, ArrayType, BaseType, TupleType, StructOrClassType, TraitObj>;
+    template <typename T>
+        requires std::is_constructible_v<InnerType, T>
+    Type(T&& data): data(std::forward<T>(data)) {};
+    Type(const Type&) = default;
+    Type(Type&&) = default;
+
+    InnerType data;
+};
 
 struct Template {
-    struct TemplateParam {
-        StringToken paramName;
-        std::vector<TraitToken> paramConstraints;
-    };
     StringToken name;
     std::vector<TemplateParam> templateParams;
     StructOrClassType prototype;
 };
+struct Trait {
+
+};
+
 
 struct TypeManager {
     TypeManager(StringPool* sp): sp(sp) {
@@ -68,13 +82,18 @@ struct TypeManager {
         // make base types
         layouts.push_back({{}});
         types.push_back(TupleType{0});
-        types.push_back(BaseType{sp->take("dynamic")});
-        types.push_back(BaseType{sp->take("i64")});
-        types.push_back(BaseType{sp->take("u64")});
-        types.push_back(BaseType{sp->take("f64")});
+        types.push_back(BaseType{false, sp->take("dynamic")});
+        types.push_back(BaseType{false, sp->take("i64")});
+        types.push_back(BaseType{false, sp->take("u64")});
+        types.push_back(BaseType{false, sp->take("f64")});
+        types.push_back(BaseType{true, sp->take("any")});
     }
     TypeManager(const TypeManager&) = delete;
     auto& operator=(const TypeManager&) = delete;
+
+    Type& getType(TypeToken t) {
+        return types[t];
+    }
 
     TypeToken arrayTypeOf(TypeToken base) {
         return findCached(base, arrayType, [this](TypeToken base){
@@ -118,4 +137,4 @@ private:
     }
 };
 
-}
+} 

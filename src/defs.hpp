@@ -1,11 +1,13 @@
 #pragma once
 
 // #include <cstddef>
+#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <new>
 #include <string_view>
 #include <type_traits>
+#include <vector>
 
 namespace rulejit {
 
@@ -35,20 +37,56 @@ static_assert(sizeof(u64) == sizeof(u64));
 struct alignas(u64) ObjHeader {
     // type id
     u32 typeId;
-    // size of total object / sizeof(u64) (DONOT contains ObjHeader); u16(-1) means out of range, should lookup through typemanager
+    // size of total object / sizeof(u64) (DONOT contains ObjHeader); u8(-1) means out of range, should lookup through typemanager
     u8 sizeCompressed;
     // age in minor, color in elder
     u8 ageOrColor;
     // flags
     u8 flag;
+    // bit mask of pointer member, !!(pointerMask & (1 << n)) if ObjPtr[n] is pointer. avaliable even size > 8 * sizeof(u64)
+    u8 pointerMask;
 
-    u8 reserved;
+    ObjHeader getPrototype() {
+        auto h = *this;
+        // TODO: h &= 0xxxx
+        h.ageOrColor = 0;
+        h.removeFlag(Flags::kIsMinorObject);
+        h.removeFlag(Flags::kIsMoved);
+        return h;
+    }
+
+    enum class Color {
+        kWhite = 0,
+        kGray = 1,
+        kBlack = 2,
+    };
+    void setColor(Color c) {
+        assert(!hasFlag(Flags::kIsMinorObject));
+        ageOrColor = static_cast<u8>(c);
+    }
+    
+    bool isBigObject() {
+        return sizeCompressed == decltype(sizeCompressed)(-1);
+    }
+
+    // TODO: record memory type in flags
     enum class Flags {
         kHasPointerMember = 1, 
         kHasFinalizer = 2, 
-        kHasNativeScanner = 4, // for example, native hash map
+        kHasNativeScanner = 4, // for example, u64[] / native hash map
+        
         kIsMoved = 8, // used in move GC
+        kIsMinorObject = 16, // minor if set, major / static / huge if unset
     };
+    bool hasFlag(Flags f) {
+        return (flag & static_cast<u8>(f)) != 0;
+    }
+    void addFlag(Flags f) {
+        flag &= static_cast<u8>(f);
+    }
+    void removeFlag(Flags f) {
+        flag &= ~static_cast<u8>(f);
+    }
 };
 static_assert(sizeof(ObjHeader) == sizeof(u64));
 
@@ -65,12 +103,29 @@ struct alignas(u64) reg {
 static_assert(sizeof(reg) == sizeof(u64));
 
 // unique through packages
-using TypeToken = u32;
-static_assert(std::is_same_v<TypeToken, decltype(ObjHeader{}.typeId)>);
+struct TypeToken {
+    u32 data;
+    TypeToken(u32 data): data(data) {};
+    operator u32() { return data; }
+};
+static_assert(std::is_constructible_v<TypeToken, decltype(ObjHeader{}.typeId)> &&
+    std::is_constructible_v<decltype(ObjHeader{}.typeId), TypeToken>);
 // inner layout, ```type A struct (b: int)``` has same layout with ```type C struct (d: int)```, but are different types
-using LayoutToken = u32;
-using TypeTemplateToken = u32;
-using TraitToken = u32;
+struct LayoutToken {
+    u32 data;
+    LayoutToken(u32 data): data(data) {};
+    operator u32() { return data; }
+};
+struct TypeTemplateToken {
+    u32 data;
+    TypeTemplateToken(u32 data): data(data) {};
+    operator u32() { return data; }
+};
+struct TraitToken {
+    u32 data;
+    TraitToken(u32 data): data(data) {};
+    operator u32() { return data; }
+};
 
 using FunctionTemplateToken = u32;
 

@@ -41,8 +41,7 @@ namespace rulejit {
  * calling conventions:
  *   1. normal argument
  *     a. normal argument are passed as the order of their declaration
- *     // TODO: by pointer and offset
- *     b. 'ref struct' are passed by pointer, caller must make sure class holding this struct will not recycled during GC
+ *     b. 'ref struct' are passed by by pointer and offset, caller must make sure class holding this struct will not recycled during GC
  *     c. huge struct (normally bigger than 2 reg.) are passed by pointer, pass-by-value semantic is guaranteed by callee (maybe CoW)
  *     d. small struct (function is garanteed to be small struct) are passed by 1 or 2 reg, low-indexed reg stores lower endian of data.
  *     e. dynamic object are passed like class object, by pointer
@@ -84,7 +83,6 @@ enum class OPCode {
         ILL = 0, // illegal opcode
         NOP = 1, // NOP
     // ABC
-    __ABC, 
         // R[A] = R[B] op R[C] // int, uint, float
         ADDu, ADDf, SUBu, SUBf, MULi, MULf, DIVi, DIVf, MULu, DIVu, MODu, 
         SHLu, SHRu, 
@@ -92,13 +90,13 @@ enum class OPCode {
         GEu, GEi, LEu, LEi, Gu, Gi, Lu, Li, EQ, 
         GEf, LEf, Gf, Lf, 
         // R[A] = [R[B] + R[C]]
-        LOADrr, // register + register
+        LOADrr, LOADrrp, // register + register (pointer)
         // [R[A] + R[C]] = R[B]
-        STORErr, // register + register
+        STORErr, STORErrp, // register + register
         // R[A] = [R[B]].attr(R[C])
-        LOADa, // attr like "string::size" / (dyn::)"size"
+        LOADa, LOADap, // attr string like "size"
         // [R[A]].attr(R[C]) = R[B]
-        STOREa, // attr
+        STOREa, STOREap, // attr
         // R[A] = if (R[C]) R[B] else R[A]
         CMOV, 
         // // R[A] = *(((type*)&R[B]) + R[C]), extract member from R[B] ([unsigned] short low / high or char lowlow / ... or float)
@@ -110,13 +108,11 @@ enum class OPCode {
         // EMPusr, EMPucr, 
         // EMPfr, 
     // ABCi
-    __ABCi, 
         // R[A] = [R[B] + imm]
-        LOADi, // imm diff
+        LOADi, LOADip, // imm diff
         // [R[A] + imm] = R[B]
-        STOREi, // imm diff
+        STOREi, STOREip, // imm diff
     // ABCo
-    __ABCo, 
         // R[A] = new(AUTO[OFFSET]) type(R[B])
         ALLOCsr, // stack register
         // throw type(R[A])(R[B], ..., R[B+OFFSET])
@@ -131,21 +127,17 @@ enum class OPCode {
         // EMPf, 
     // ABiCo
     // ABoCo
-    __ABoCo, 
-        // R[A] = CONST[OFFSETb] (if initialized)
-        // else call function IP + OFFSETc with no arg and put returned value to CONST[OFFSETb:]
-        // used in static initialization (or template function instantiation)
-        LOADst, // load static
+        // R[A] = STATIC[OFFSETb] if initialized, else call function related to the static object to init it.
+        LOADst, LOADstp, // load static
         // R[A] = new(AUTO[OFFSETc]) type(CONST[OFFSETb])
         ALLOCsc, // stack const
     // ABr
-    __ABr, 
         // R[A] = !R[B]
         NOT, 
         // R[A] = [R[B]]
-        LOAD, 
+        LOAD, LOADp, 
         // [R[A]] = R[B]
-        STORE, 
+        STORE, STOREp, 
         // R[A] = f R[B]
         DTRANSuf, DTRANSfu, DTRANSif, DTRANSfi, 
         // R[A] = R[B]
@@ -153,13 +145,12 @@ enum class OPCode {
         // R[A] = new type(R[B])
         ALLOChr, // heap register
     // ABo
-    __ABo, 
         // R[A] = new type(CONST[OFFSET])
         ALLOChc, // heap const
         // R[A] = [R[B]].attr(CONST[OFFSET])
-        LOADac, 
+        LOADac, LOADacp, 
         // [R[A]].attr(CONST[OFFSET]) = R[B]
-        STOREac, 
+        STOREac, STOREacp, 
         // {R[A], R[A+1]}(R[A+2], ..., R[A+OFFSET]), all arg will not modified
         CALLc, // call closure
         // R[A](R[A+1], ..., R[A+OFFSET]), all arg will not modified
@@ -173,11 +164,9 @@ enum class OPCode {
         // R[A] = CONST[OFFSET]
         LOADc, 
     // ABi
-    __ABi, 
         // if (R[A] op 0) IP += IMM;
         BEZ, BNZ, 
     // Ai
-    __Ai, 
         // branch
         BR, 
         // register exception TRAP
@@ -186,10 +175,5 @@ enum class OPCode {
 };
 
 static_assert(static_cast<size_t>(OPCode::__TOTAL_COUNT) < 0x80);
-
-// byte code to represent IR
-enum class ByteCode {
-
-};
 
 }
