@@ -7,8 +7,6 @@
 #include <functional>
 #include <new>
 #include <unordered_set>
-#include <memory>
-#include <bitset>
 #include <bit>
 
 #include "defs.hpp"
@@ -46,7 +44,7 @@ struct alignas(PageSize) Page {
 };
 
 struct MinorPageInfo {
-    bool isMinorGcTarget;
+    bool isMinorGcMoveTarget;
 };
 
 // template <size_t ObjSize = sizeof(u64)>
@@ -185,7 +183,7 @@ struct Memory {
      * @param src value need write
      */
     void writeWithBarrier(reg** dst, reg* src) {
-        if (src == nullptr) {
+        if (src == nullptr || src == *dst) {
             *dst = src;
             return;
         }
@@ -247,7 +245,7 @@ private:
             *now = (**now).as<reg*>();
             return;
         }
-        if (getMinorPageInfo(helper::getPageId(usize(*now))).isMinorGcTarget) {
+        if (getMinorPageInfo(helper::getPageId(usize(*now))).isMinorGcMoveTarget) {
             // 3. target object already moved and this pointer already modified
             return;
         }

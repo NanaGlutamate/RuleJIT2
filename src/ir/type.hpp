@@ -63,11 +63,6 @@ struct Type {
     InnerType data;
 };
 
-struct Template {
-    StringToken name;
-    std::vector<TemplateParam> templateParams;
-    StructOrClassType prototype;
-};
 struct Trait {
 
 };
@@ -118,7 +113,6 @@ private:
 
     std::vector<Layout> layouts = {};
     std::vector<Type> types = {};
-    std::vector<Template> templates = {};
 
     // PooledList<TypeToken>::Pool pool0;
     // PooledList<std::tuple<StringToken, TypeToken>>::Pool pool1;

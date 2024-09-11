@@ -10,8 +10,9 @@
 namespace rulejit {
 
 struct Package {
+    FunctionTemplateToken onload;
     StringToken packageName;
-    std::unordered_map<StringToken, std::variant<TypeTemplateToken, FunctionTemplateToken, GlobalVarToken, PackagedToken>> exportToken, innerToken;
+    std::unordered_map<StringToken, std::variant<TypeTemplateToken, FunctionTemplateToken, GlobalVarToken, TraitToken, ImplToken>> exportToken, innerToken;
 };
 
 struct PackageManager {
@@ -24,6 +25,8 @@ struct PackageManager {
     Package deserialize(const std::vector<u8>& stream, Context* ctx) {
         return {};
     }
+private:
+    
 };
 
 }

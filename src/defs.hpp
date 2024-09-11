@@ -102,34 +102,24 @@ struct alignas(u64) reg {
 };
 static_assert(sizeof(reg) == sizeof(u64));
 
-// unique through packages
-struct TypeToken {
+struct Token {
     u32 data;
-    TypeToken(u32 data): data(data) {};
+    Token(u32 data): data(data) {};
     operator u32() { return data; }
 };
+
+// unique through packages
+struct TypeToken : public Token {};
 static_assert(std::is_constructible_v<TypeToken, decltype(ObjHeader{}.typeId)> &&
     std::is_constructible_v<decltype(ObjHeader{}.typeId), TypeToken>);
 // inner layout, ```type A struct (b: int)``` has same layout with ```type C struct (d: int)```, but are different types
-struct LayoutToken {
-    u32 data;
-    LayoutToken(u32 data): data(data) {};
-    operator u32() { return data; }
-};
-struct TypeTemplateToken {
-    u32 data;
-    TypeTemplateToken(u32 data): data(data) {};
-    operator u32() { return data; }
-};
-struct TraitToken {
-    u32 data;
-    TraitToken(u32 data): data(data) {};
-    operator u32() { return data; }
-};
+struct LayoutToken : public Token {};
+struct TypeTemplateToken : public Token {};
+struct TraitToken : public Token {};
+struct ImplToken : public Token {};
 
-using FunctionTemplateToken = u32;
-
-using GlobalVarToken = u32;
+struct FunctionTemplateToken : public Token {};
+struct GlobalVarToken : public Token {};
 
 struct StringToken {
     const std::string_view* data;

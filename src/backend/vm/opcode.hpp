@@ -93,10 +93,10 @@ enum class OPCode {
         LOADrr, LOADrrp, // register + register (pointer)
         // [R[A] + R[C]] = R[B]
         STORErr, STORErrp, // register + register
-        // R[A] = [R[B]].attr(R[C])
-        LOADa, LOADap, // attr string like "size"
-        // [R[A]].attr(R[C]) = R[B]
-        STOREa, STOREap, // attr
+        // // R[A] = [R[B]].attr(R[C])
+        // LOADa, LOADap, // attr string like "size"
+        // // [R[A]].attr(R[C]) = R[B]
+        // STOREa, STOREap, // attr
         // R[A] = if (R[C]) R[B] else R[A]
         CMOV, 
         // // R[A] = *(((type*)&R[B]) + R[C]), extract member from R[B] ([unsigned] short low / high or char lowlow / ... or float)
@@ -134,10 +134,10 @@ enum class OPCode {
     // ABr
         // R[A] = !R[B]
         NOT, 
-        // R[A] = [R[B]]
-        LOAD, LOADp, 
-        // [R[A]] = R[B]
-        STORE, STOREp, 
+        // // R[A] = [R[B]]
+        // LOAD, LOADp, 
+        // // [R[A]] = R[B]
+        // STORE, STOREp, 
         // R[A] = f R[B]
         DTRANSuf, DTRANSfu, DTRANSif, DTRANSfi, 
         // R[A] = R[B]
@@ -147,10 +147,10 @@ enum class OPCode {
     // ABo
         // R[A] = new type(CONST[OFFSET])
         ALLOChc, // heap const
-        // R[A] = [R[B]].attr(CONST[OFFSET])
-        LOADac, LOADacp, 
-        // [R[A]].attr(CONST[OFFSET]) = R[B]
-        STOREac, STOREacp, 
+        // R[A] = [R[B] + OFFSET]
+        LOADao, LOADaop, 
+        // [R[A] + OFFSET] = R[B]
+        STOREao, STOREaop, 
         // {R[A], R[A+1]}(R[A+2], ..., R[A+OFFSET]), all arg will not modified
         CALLc, // call closure
         // R[A](R[A+1], ..., R[A+OFFSET]), all arg will not modified
