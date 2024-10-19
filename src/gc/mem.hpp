@@ -69,6 +69,15 @@ usize getPageId(usize ptr) {
     return mask & ptr;
 }
 
+reg* getRawPtr(usize ptr) {
+    constexpr usize mask = ~(sizeof(usize) - 1);
+    return reinterpret_cast<reg*>(ptr & mask);
+}
+
+usize getHackedPtr(reg* ptr, ) {
+
+}
+
 }
 
 /**
@@ -103,7 +112,7 @@ usize getPageId(usize ptr) {
  * 
  * 
  * 
- * 
+ * TODO: pointer hack, use low 3 bit to store information
  * 
  */
 struct Memory {

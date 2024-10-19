@@ -34,6 +34,12 @@
         "utility": "cpp",
         "xmemory": "cpp",
         "xutility": "cpp",
-        "span": "cpp"
+        "span": "cpp",
+        "bit": "cpp",
+        "cmath": "cpp",
+        "functional": "cpp",
+        "unordered_map": "cpp",
+        "unordered_set": "cpp",
+        "xhash": "cpp"
     }
 }
