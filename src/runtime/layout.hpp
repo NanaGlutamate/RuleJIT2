@@ -1,7 +1,7 @@
 /**
- * @file jit.hpp
+ * @file layout.hpp
  * @author nanaglutamate
- * @brief 
+ * @brief layout of objects
  * @date 2024-11-14
  * 
  * @details 
@@ -12,4 +12,3 @@
  * <tr><td>nanaglutamate</td><td>2024-11-14</td><td>Initial version.</td></tr>
  * </table>
  */
-#pragma once

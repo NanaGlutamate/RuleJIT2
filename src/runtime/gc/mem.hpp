@@ -1,3 +1,17 @@
+/**
+ * @file mem.hpp
+ * @author nanaglutamate
+ * @brief 
+ * @date 2024-11-15
+ * 
+ * @details 
+ * 
+ * @par history
+ * <table>
+ * <tr><th>Author</th><th>Date</th><th>Changes</th></tr>
+ * <tr><td>nanaglutamate</td><td>2024-11-15</td><td>Initial version.</td></tr>
+ * </table>
+ */
 #pragma once
 
 #include <cassert>
@@ -84,32 +98,11 @@ usize getHackedPtr(reg* ptr, ) {
  * @brief GC
  *
  * life cycle:
+ *   3 states: Normal, MinorGC, MajorGC
  * 
- * -----------
- * |         |<-------------
- * |  Normal |             | if has enough memory
- * |         |-allocHeap()-- 
- * -----------             | if minor storage is nearly full
- *                         | changeState();
- *                         | rootScanner(); // should call registerGcRoot();
- *                              
- *
- *
- * -----------
- * |         |
- * | MinorGC |TODO:
- * |         |
- * -----------
- * 
- * -----------
- * |         |
- * | MajorGC |
- * |         |
- * -----------
- * 
- * 
- * 
- * 
+ * moves between states:
+ *   1. Normal -> MinorGC: if minor storage is nearly full
+ *      will call changeState(); rootScanner();
  * 
  * 
  * TODO: pointer hack, use low 3 bit to store information

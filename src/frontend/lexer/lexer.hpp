@@ -1,5 +1,5 @@
 /**
- * @file ir.hpp
+ * @file lexer.hpp
  * @author nanaglutamate
  * @brief 
  * @date 2024-11-15
@@ -14,18 +14,16 @@
  */
 #pragma once
 
-#include <vector>
+#include <type_traits>
 
 namespace rulejit {
 
-enum struct IROP {
-    ALLOCs, ALLOCc,
+class Lexer {
+    Lexer();
+
+    template <typename Ty, typename ...Args>
+        requires std::is_constructible_v<Ty, Lexer, Args...>
+    Ty collect(Args&& ...args);
 };
 
-struct Block {};
-
-struct IR {
-    std::vector<Block> blocks;
 };
-
-}

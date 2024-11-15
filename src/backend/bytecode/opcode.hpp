@@ -1,6 +1,18 @@
+/**
+ * @file opcode.hpp
+ * @author nanaglutamate
+ * @brief define opcodes used in VM
+ * @date 2024-11-14
+ * 
+ * @details 
+ * 
+ * @par history
+ * <table>
+ * <tr><th>Author</th><th>Date</th><th>Changes</th></tr>
+ * <tr><td>nanaglutamate</td><td>2024-11-14</td><td>Initial version.</td></tr>
+ * </table>
+ */
 #pragma once
-
-namespace rulejit {
 
 /**
  * memory model:
@@ -77,7 +89,9 @@ namespace rulejit {
  *  Ai    : |  OpCode(8)    |  IMM(24)                                      |
  * 
  */
- // remove native support for non-64bit type
+
+namespace rulejit {
+
  // TODO: disable place data on stack, all struct should allocate on 'AUTO', therefore design of template is easier
 enum class OPCode {
         ILL = 0, // illegal opcode

@@ -1,5 +1,5 @@
 /**
- * @file ir.hpp
+ * @file common_datastructure.hpp
  * @author nanaglutamate
  * @brief 
  * @date 2024-11-15
@@ -14,18 +14,14 @@
  */
 #pragma once
 
-#include <vector>
+#include <string_view>
 
 namespace rulejit {
 
-enum struct IROP {
-    ALLOCs, ALLOCc,
+struct Token {
+    std::string_view token;
 };
-
-struct Block {};
-
-struct IR {
-    std::vector<Block> blocks;
-};
+struct Type;
+struct TypeHandle { Type* type; };
 
 }

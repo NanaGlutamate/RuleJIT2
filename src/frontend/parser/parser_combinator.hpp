@@ -1,5 +1,5 @@
 /**
- * @file ir.hpp
+ * @file parser_combinator.hpp
  * @author nanaglutamate
  * @brief 
  * @date 2024-11-15
@@ -15,17 +15,10 @@
 #pragma once
 
 #include <vector>
+#include <string_view>
 
-namespace rulejit {
+namespace tulejit {
 
-enum struct IROP {
-    ALLOCs, ALLOCc,
-};
 
-struct Block {};
-
-struct IR {
-    std::vector<Block> blocks;
-};
 
 }

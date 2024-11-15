@@ -1,5 +1,5 @@
 /**
- * @file ir.hpp
+ * @file type_manager.hpp
  * @author nanaglutamate
  * @brief 
  * @date 2024-11-15
@@ -14,18 +14,10 @@
  */
 #pragma once
 
-#include <vector>
+#include "tools/obj_pool.hpp"
 
 namespace rulejit {
 
-enum struct IROP {
-    ALLOCs, ALLOCc,
-};
 
-struct Block {};
-
-struct IR {
-    std::vector<Block> blocks;
-};
 
 }
