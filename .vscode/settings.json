@@ -41,6 +41,8 @@
         "unordered_map": "cpp",
         "unordered_set": "cpp",
         "xhash": "cpp",
-        "optional": "cpp"
+        "optional": "cpp",
+        "any": "cpp",
+        "array": "cpp"
     }
 }

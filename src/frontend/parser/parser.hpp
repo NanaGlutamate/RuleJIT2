@@ -14,3 +14,14 @@
  */
 #pragma once
 
+#include <array>
+#include <tuple>
+#include <unordered_map>
+
+namespace rulejit {
+
+struct CachedParser {
+    std::array<std::unordered_map<std::tuple<>, >, 5> cache;
+};
+
+}

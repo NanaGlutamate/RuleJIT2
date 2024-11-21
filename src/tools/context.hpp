@@ -16,6 +16,8 @@
 
 #include <vector>
 
+namespace tools {
+
 template <typename Ctx>
 struct ThreadedContextProvider {
     static Ctx& getContext() {
@@ -33,4 +35,6 @@ struct ThreadedContextProvider {
 
 private:
     thread_local std::vector<Ctx> ctxVector = {};
+}
+
 }

@@ -1,0 +1,1 @@
+add_executable(LexerTest lexer.cpp)

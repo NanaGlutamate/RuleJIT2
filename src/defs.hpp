@@ -135,13 +135,6 @@ struct ImplToken : public Token {};
 struct FunctionTemplateToken : public Token {};
 struct GlobalVarToken : public Token {};
 
-struct StringToken {
-    const std::string_view* data;
-    constexpr auto operator<=>(StringToken other) noexcept {
-        return data <=> other.data;
-    }
-};
-
 struct PackagedToken {
     StringToken package;
     StringToken token;

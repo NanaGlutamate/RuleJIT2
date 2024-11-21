@@ -14,3 +14,6 @@
  */
 #pragma once
 
+namespace tools {
+    
+} // namespace tools

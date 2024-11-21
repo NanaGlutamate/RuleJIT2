@@ -21,9 +21,26 @@
 
 #include "defs.hpp"
 
-namespace rulejit {
+namespace tools {
+
+struct StringToken {
+    const std::string_view* data;
+    constexpr auto operator<=>(StringToken other) noexcept {
+        return data <=> other.data;
+    }
+};
 
 struct StringPool {
+
+    StringToken take(std::string&& s) {
+        auto it = table.find(s);
+        if (it == table.end()) {
+            auto& stored = storage.emplace_back(std::move(s));
+            it = table.emplace(stored).first;
+        }
+        return {&*it};
+    }
+
     StringToken take(std::string_view s) {
         auto it = table.find(s);
         if (it == table.end()) {
@@ -40,8 +57,8 @@ private:
 }
 
 template <>
-struct std::hash<rulejit::StringToken> {
-    static size_t operator()(rulejit::StringToken v) noexcept {
+struct std::hash<tools::StringToken> {
+    static size_t operator()(tools::StringToken v) noexcept {
         return hash<const std::string_view*>{}(v.data);
     }
 };

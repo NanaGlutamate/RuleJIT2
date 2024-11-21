@@ -12,9 +12,7 @@
  * <tr><td>nanaglutamate</td><td>2024-11-15</td><td>Initial version.</td></tr>
  * </table>
  */
-#include "ast/ast_node.hpp"
-#include "vm/mem.hpp"
-#include "vm/vm.hpp"
+#include "tools/cached.hpp"
 #include "ir/type.hpp"
 
 int main() {}

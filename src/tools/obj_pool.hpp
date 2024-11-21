@@ -22,7 +22,7 @@
 
 #include "defs.hpp"
 
-namespace rulejit {
+namespace tools {
 
 template<typename Obj>
 struct Pool;

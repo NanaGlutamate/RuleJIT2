@@ -17,7 +17,7 @@
 #include <cassert>
 #include <type_traits>
 
-namespace rulejit {
+namespace tools {
 
 template <typename T, size_t Capacity>
 struct inplace_vector {

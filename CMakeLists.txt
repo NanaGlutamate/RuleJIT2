@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.28)
 
 set(PROJ_NAME Render)
-project(${PROJ_NAME} LANGUAGES CXX)
+project(${PROJ_NAME} LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD ON)
