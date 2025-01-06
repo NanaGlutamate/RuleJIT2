@@ -93,7 +93,7 @@
 namespace rulejit {
 
  // TODO: disable place data on stack, all struct should allocate on 'AUTO', therefore design of template is easier
-enum class OPCode {
+enum class OPCode : uint8_t {
         ILL = 0, // illegal opcode
         NOP = 1, // NOP
     // ABC
