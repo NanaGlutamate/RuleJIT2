@@ -1,5 +1,5 @@
+// #include <gtest/
+
 #include "frontend/lexer/lexer.hpp"
 
-int main() {
-    
-}
+int main() { return 0; }

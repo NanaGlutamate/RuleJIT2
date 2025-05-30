@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.28)
 
-set(PROJ_NAME Render)
+set(PROJ_NAME RuleJIT2)
 project(${PROJ_NAME} LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 23)

@@ -1,11 +1,11 @@
 /**
  * @file string_pool.hpp
  * @author nanaglutamate
- * @brief 
+ * @brief
  * @date 2024-11-15
- * 
- * @details 
- * 
+ *
+ * @details
+ *
  * @par history
  * <table>
  * <tr><th>Author</th><th>Date</th><th>Changes</th></tr>
@@ -14,24 +14,19 @@
  */
 #pragma once
 
+#include <deque>
+#include <span>
 #include <string>
 #include <string_view>
 #include <unordered_set>
-#include <deque>
 
 #include "defs.hpp"
 
 namespace tools {
 
-struct StringToken {
-    const std::string_view* data;
-    constexpr auto operator<=>(StringToken other) noexcept {
-        return data <=> other.data;
-    }
-};
+using rulejit::StringToken;
 
 struct StringPool {
-
     StringToken take(std::string&& s) {
         auto it = table.find(s);
         if (it == table.end()) {
@@ -49,16 +44,25 @@ struct StringPool {
         }
         return {&*it};
     }
-private:
+
+    template <typename Callback>
+        requires requires(Callback cb, StringToken token) { cb(token); }
+    void takeCompressedPool(std::string&& pool, std::span<std::string_view> s, Callback& cb) {
+        storage.push_back(std::move(pool));
+        for (auto sv : s) {
+            auto it = table.emplace(sv).first;
+            cb(*it);
+        }
+    }
+
+  private:
     std::deque<std::string> storage;
     std::unordered_set<std::string_view> table;
 };
 
-}
+} // namespace tools
 
 template <>
 struct std::hash<tools::StringToken> {
-    static size_t operator()(tools::StringToken v) noexcept {
-        return hash<const std::string_view*>{}(v.data);
-    }
+    static size_t operator()(tools::StringToken v) noexcept { return hash<const std::string_view*>{}(v.data); }
 };
